@@ -1,0 +1,47 @@
+# Kubernetes Deployment Configuration
+# A Deployment manages a set of identical pods, ensuring that a specified number of replicas are running at all times
+# It provides declarative updates, rollback capabilities, and scaling features
+
+# API version for Deployment resources (apps/v1 is the stable version)
+apiVersion: apps/v1
+# Resource type: Deployment manages multiple pod replicas
+kind: Deployment
+metadata:
+  # Name of the deployment resource
+  name: k8sappswd-deployment
+spec:
+  # Number of replicas (pods) to maintain
+  replicas: 2
+  # Selector defines which pods belong to this deployment
+  selector:
+    matchLabels:
+      # Must match the labels in template.metadata.labels
+      app: k8sappswddeployment
+  # Template defines the pod specification that will be created
+  template:
+    # Metadata for the pod template
+    metadata:
+      # Labels applied to each pod created by this deployment
+      labels:
+        app: k8sappswddeployment
+    spec:
+      # Container specifications for the pods
+      containers:
+      # Container name within the pod
+      - name: k8sappswddeployment
+        # Docker image to run (should be available in the cluster or registry)
+        image: k8sappswd:v1
+        imagePullPolicy: IfNotPresent
+        # List of ports that the container exposes
+        ports:
+        # Port that the container exposes (application listens on this port)
+        - containerPort: 5000
+          protocol: TCP
+        resources:
+          # Resource requests and limits for the container
+          requests:
+            memory: "64Mi"  # Minimum memory required
+            cpu: "250m"      # Minimum CPU required
+          limits:
+            memory: "128Mi"  # Maximum memory allowed
+            cpu: "500m"      # Maximum CPU allowed
