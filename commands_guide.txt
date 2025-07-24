@@ -1,0 +1,238 @@
+===============================================================================
+                    TERMINAL COMMANDS GUIDE - K8S Flask Application
+===============================================================================
+
+This file explains all the terminal commands used in the K8S Flask Application project.
+
+===============================================================================
+
+
+===============================================================================
+2. PYTHON COMMANDS
+===============================================================================
+
+python app.py
+- Runs the Flask application directly
+- Starts the development server on localhost:5000
+
+pip install -r requirements.txt
+- Installs all Python packages listed in requirements.txt
+- Ensures all dependencies are available
+
+pip install <package>
+- Installs a specific Python package
+- Example: pip install flask
+
+===============================================================================
+3. DOCKER COMMANDS
+===============================================================================
+
+docker build -t <image-name>:<tag> .
+- Builds a Docker image from the Dockerfile in current directory
+- Example: docker build -t k8sappswd:v1 .
+- -t: tags the image with a name and version
+
+docker run -p <host-port>:<container-port> <image-name>
+- Runs a container from an image
+- Example: docker run -p 5000:5000 k8sappswd:v1
+- -p: maps host port to container port
+
+docker images
+- Lists all Docker images on your system
+- Shows image names, tags, and sizes
+
+docker ps
+- Shows currently running containers
+- Lists container IDs, names, and status
+
+docker ps -a
+- Shows all containers (running and stopped)
+- Includes exited containers
+
+===============================================================================
+4. KUBERNETES (kubectl) COMMANDS
+===============================================================================
+
+kubectl apply -f <filename>
+- Creates or updates Kubernetes resources from a YAML file
+- Example: kubectl apply -f deployment.yaml
+
+kubectl apply -f <filename> --dry-run=client
+- Validates YAML syntax without actually creating resources
+- Shows what would be created without making changes
+
+kubectl apply -f <filename> --dry-run=client -o yaml
+- Shows the complete YAML that would be applied
+- Useful for debugging and verification
+
+kubectl apply -f <filename> --validate=true --dry-run=client
+- Validates the configuration against Kubernetes API
+- Checks for syntax errors and invalid configurations
+
+kubectl create -f <filename> --dry-run=client
+- Shows what resources would be created (create vs apply)
+- Create fails if resource exists, apply updates it
+
+kubectl get pods
+- Lists all pods in the current namespace
+- Shows pod names, status, and basic info
+
+kubectl get deployments
+- Lists all deployments in the current namespace
+- Shows deployment names, replicas, and status
+
+kubectl get services
+- Lists all services in the current namespace
+- Shows service names, types, and endpoints
+
+kubectl get all
+- Lists all resources (pods, services, deployments, etc.)
+- Comprehensive overview of current namespace
+
+kubectl get all -l <label-selector>
+- Lists resources matching a specific label
+- Example: kubectl get all -l app=k8sappswddeployment
+
+kubectl describe <resource-type> <resource-name>
+- Shows detailed information about a specific resource
+- Example: kubectl describe pod my-pod-name
+
+kubectl logs <pod-name>
+- Shows the logs from a specific pod
+- Useful for debugging application issues
+
+kubectl scale deployment <deployment-name> --replicas=<number>
+- Changes the number of replicas for a deployment
+- Example: kubectl scale deployment k8sappswd-deployment --replicas=3
+
+kubectl set image deployment/<deployment-name> <container-name>=<new-image>
+- Updates the image used by a deployment
+- Example: kubectl set image deployment/k8sappswd-deployment k8sappswddeployment=k8sappswd:v2
+
+kubectl delete -f <filename>
+- Deletes resources defined in a YAML file
+- Example: kubectl delete -f deployment.yaml
+
+kubectl port-forward <resource-type>/<resource-name> <local-port>:<remote-port>
+- Forwards a local port to a port on a pod/service
+- Example: kubectl port-forward deployment/k8sappswd-deployment 8080:5000
+
+kubectl get events --sort-by=.metadata.creationTimestamp
+- Shows cluster events sorted by creation time
+- Useful for troubleshooting deployment issues
+
+===============================================================================
+5. MINIKUBE COMMANDS
+===============================================================================
+
+minikube start
+- Starts a local Kubernetes cluster
+- Creates a single-node cluster for development
+
+minikube service <service-name>
+- Opens the service in your default browser
+- Example: minikube service k8sappswd-service
+
+minikube service <service-name> --url
+- Returns the URL to access the service
+- Example: minikube service k8sappswd-service --url
+
+minikube stop
+- Stops the local Kubernetes cluster
+- Preserves cluster state for next start
+
+minikube delete
+- Deletes the local Kubernetes cluster
+- Removes all cluster data and configuration
+
+===============================================================================
+6. VALIDATION AND TROUBLESHOOTING COMMANDS
+===============================================================================
+
+kubectl apply -f <filename> --server-dry-run
+- Validates against the actual Kubernetes server
+- More thorough validation than client-side dry-run
+
+kubectl get events
+- Shows recent cluster events
+- Helps identify issues with deployments
+
+kubectl describe pods -l <label-selector>
+- Shows detailed info for pods matching a label
+- Example: kubectl describe pods -l app=k8sappswddeployment
+
+kubectl exec -it <pod-name> -- /bin/bash
+- Opens an interactive shell inside a pod
+- Useful for debugging container issues
+
+kubectl top pods
+- Shows CPU and memory usage of pods
+- Requires metrics server to be installed
+
+===============================================================================
+7. COMMAND COMBINATIONS AND WORKFLOWS
+===============================================================================
+
+Complete Deployment Workflow:
+1. docker build -t k8sappswd:v1 .
+2. kubectl apply -f deployment.yaml --dry-run=client --validate=true
+3. kubectl apply -f service.yaml --dry-run=client --validate=true
+4. kubectl apply -f deployment.yaml
+5. kubectl apply -f service.yaml
+6. kubectl get all
+7. minikube service k8sappswd-service
+
+Git Workflow:
+1. git add .
+2. git commit -m "descriptive message"
+3. git push origin main
+
+Troubleshooting Workflow:
+1. kubectl get pods
+2. kubectl describe pod <pod-name>
+3. kubectl logs <pod-name>
+4. kubectl get events
+
+===============================================================================
+8. USEFUL FLAGS AND OPTIONS
+===============================================================================
+
+--dry-run=client
+- Performs client-side validation only
+- Does not contact the Kubernetes server
+
+--dry-run=server
+- Performs server-side validation
+- Contacts Kubernetes API but doesn't create resources
+
+-o yaml
+- Output in YAML format
+- Useful for seeing full resource definitions
+
+-o json
+- Output in JSON format
+- Alternative to YAML output
+
+--validate=true
+- Enables schema validation
+- Checks against Kubernetes API schema
+
+-l <label-selector>
+- Filter resources by labels
+- Example: -l app=myapp
+
+--sort-by=<field>
+- Sort output by a specific field
+- Example: --sort-by=.metadata.creationTimestamp
+
+-w or --watch
+- Watch for changes in real-time
+- Example: kubectl get pods -w
+
+===============================================================================
+NOTES:
+- Replace <placeholders> with actual values for your project
+- Always use --dry-run for validation before applying changes
+- Use kubectl describe and logs for troubleshooting
+- Remember to build and tag Docker images before Kubernetes deployment
+===============================================================================
