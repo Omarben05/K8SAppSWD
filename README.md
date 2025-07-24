@@ -1,19 +1,22 @@
 # Flask K8S Application
 
-A simple Flask web application designed for Kubernetes deployment.
+A simple Flask web application designed for Kubernetes deployment with Docker containerization.
 
 ## 🚀 Features
 
-- **Flask Web Framework**: Lightweight and efficient
-- **CORS Support**: Cross-origin requests enabled
-- **Docker Ready**: Containerized for easy deployment
-- **Kubernetes Compatible**: Ready for K8s orchestration
+- **Flask Web Framework**: Lightweight and efficient Python web framework
+- **CORS Support**: Cross-origin requests enabled for frontend integration
+- **Docker Ready**: Fully containerized with optimized Dockerfile
+- **Kubernetes Compatible**: Multiple deployment options (Pod and Deployment)
+- **Resource Management**: CPU and memory limits configured
+- **Production Ready**: Proper logging and error handling
 
 ## 📋 Prerequisites
 
 - Python 3.11+
-- Docker (optional)
-- Kubernetes cluster (for K8s deployment)
+- Docker (for containerization)
+- Kubernetes cluster (minikube, Docker Desktop, or cloud provider)
+- kubectl CLI tool
 
 ## 🛠️ Installation & Setup
 
@@ -21,7 +24,7 @@ A simple Flask web application designed for Kubernetes deployment.
 
 1. **Clone the repository**:
 ```bash
-git clone https://github.com/yourusername/K8SAppSWD.git
+git clone https://github.com/Omarben05/K8SAppSWD.git
 cd K8SAppSWD
 ```
 
@@ -41,25 +44,46 @@ The application will be available at `http://localhost:5000`
 
 1. **Build the Docker image**:
 ```bash
-docker build -t flask-k8s-app .
+docker build -t k8sappswd:v1 .
 ```
 
 2. **Run the container**:
 ```bash
-docker run -p 5000:5000 flask-k8s-app
+docker run -p 5000:5000 k8sappswd:v1
 ```
 
 ### Kubernetes Deployment
 
+#### Option 1: Single Pod Deployment
 ```bash
-kubectl apply -f k8s-deployment.yaml
+kubectl apply -f pod.yaml
+```
+
+#### Option 2: Deployment with Replicas (Recommended)
+```bash
+kubectl apply -f deployment.yaml
+```
+
+#### Verify Deployment
+```bash
+# Check pods status
+kubectl get pods
+
+# Check deployment status (if using deployment.yaml)
+kubectl get deployments
+
+# View application logs
+kubectl logs <pod-name>
+
+# Access the application (if using minikube)
+minikube service <service-name>
 ```
 
 ## 📡 API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET    | `/`      | Returns a JSON greeting message |
+| Method | Endpoint | Description | Response |
+|--------|----------|-------------|----------|
+| GET    | `/`      | Returns a JSON greeting message | `{"message": "Ciao da k8s!"}` |
 
 ### Response Example
 ```json
@@ -72,12 +96,46 @@ kubectl apply -f k8s-deployment.yaml
 
 ```
 K8SAppSWD/
-├── app.py              # Main Flask application
-├── requirements.txt    # Python dependencies
-├── Dockerfile         # Docker configuration
-├── k8s-deployment.yaml # Kubernetes deployment
-├── .gitignore         # Git ignore rules
-└── README.md          # Project documentation
+├── app.py              # Main Flask application with CORS
+├── requirements.txt    # Python dependencies (Flask, Flask-CORS)
+├── Dockerfile         # Docker configuration with Python 3.11-slim
+├── pod.yaml           # Kubernetes Pod configuration
+├── deployment.yaml    # Kubernetes Deployment with replicas and resources
+├── .gitignore         # Git ignore rules for Python projects
+├── LICENSE           # MIT License
+└── README.md         # Project documentation
+```
+
+## 🔧 Configuration
+
+### Docker Image
+- **Base Image**: `python:3.11-slim`
+- **Port**: 5000
+- **Working Directory**: `/app`
+
+### Kubernetes Resources
+- **Pod**: Single instance deployment
+- **Deployment**: 2 replicas with resource limits
+  - Memory: 64Mi (request) / 128Mi (limit)
+  - CPU: 250m (request) / 500m (limit)
+
+## 🚀 Deployment Commands
+
+```bash
+# Build and tag Docker image
+docker build -t k8sappswd:v1 .
+
+# Deploy to Kubernetes
+kubectl apply -f deployment.yaml
+
+# Scale deployment
+kubectl scale deployment k8sappswd-deployment --replicas=3
+
+# Update deployment
+kubectl set image deployment/k8sappswd-deployment k8sappswddeployment=k8sappswd:v2
+
+# Delete deployment
+kubectl delete -f deployment.yaml
 ```
 
 ## 🤝 Contributing
@@ -94,9 +152,17 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👨‍💻 Author
 
-Omar Benagoub
+**Omar Benagoub**
+- GitHub: [@Omarben05](https://github.com/Omarben05)
 
 ## 🙏 Acknowledgments
 
-- Flask community for the excellent framework
-- Kubernetes for container orchestration
+- Flask community for the excellent web framework
+- Kubernetes for container orchestration platform
+- Docker for containerization technology
+
+## 📚 Learn More
+
+- [Flask Documentation](https://flask.palletsprojects.com/)
+- [Kubernetes Documentation](https://kubernetes.io/docs/)
+- [Docker Documentation](https://docs.docker.com/)
