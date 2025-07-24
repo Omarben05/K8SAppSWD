@@ -64,6 +64,15 @@ kubectl apply -f pod.yaml
 kubectl apply -f deployment.yaml
 ```
 
+#### Option 3: Complete Deployment with Service
+```bash
+# Deploy the application
+kubectl apply -f deployment.yaml
+
+# Create service to expose the application
+kubectl apply -f service.yaml
+```
+
 #### Verify Deployment
 ```bash
 # Check pods status
@@ -72,11 +81,14 @@ kubectl get pods
 # Check deployment status (if using deployment.yaml)
 kubectl get deployments
 
+# Check service status
+kubectl get services
+
 # View application logs
 kubectl logs <pod-name>
 
 # Access the application (if using minikube)
-minikube service <service-name>
+minikube service k8sappswd-service
 ```
 
 ## 📡 API Endpoints
@@ -101,6 +113,7 @@ K8SAppSWD/
 ├── Dockerfile         # Docker configuration with Python 3.11-slim
 ├── pod.yaml           # Kubernetes Pod configuration
 ├── deployment.yaml    # Kubernetes Deployment with replicas and resources
+├── service.yaml       # Kubernetes Service to expose the application
 ├── .gitignore         # Git ignore rules for Python projects
 ├── LICENSE           # MIT License
 └── README.md         # Project documentation
@@ -118,6 +131,9 @@ K8SAppSWD/
 - **Deployment**: 2 replicas with resource limits
   - Memory: 64Mi (request) / 128Mi (limit)
   - CPU: 250m (request) / 500m (limit)
+- **Service**: Exposes the application internally/externally
+  - Type: LoadBalancer or NodePort
+  - Port: 80 (external) → 5000 (internal)
 
 ## 🚀 Deployment Commands
 
@@ -125,8 +141,9 @@ K8SAppSWD/
 # Build and tag Docker image
 docker build -t k8sappswd:v1 .
 
-# Deploy to Kubernetes
+# Deploy complete application stack
 kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
 
 # Scale deployment
 kubectl scale deployment k8sappswd-deployment --replicas=3
@@ -134,7 +151,11 @@ kubectl scale deployment k8sappswd-deployment --replicas=3
 # Update deployment
 kubectl set image deployment/k8sappswd-deployment k8sappswddeployment=k8sappswd:v2
 
-# Delete deployment
+# Get service URL (minikube)
+minikube service k8sappswd-service --url
+
+# Delete complete deployment
+kubectl delete -f service.yaml
 kubectl delete -f deployment.yaml
 ```
 
