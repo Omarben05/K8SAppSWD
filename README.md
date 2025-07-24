@@ -73,6 +73,23 @@ kubectl apply -f deployment.yaml
 kubectl apply -f service.yaml
 ```
 
+#### Validate Before Deployment (Recommended)
+```bash
+# Dry-run validation for deployment
+kubectl apply -f deployment.yaml --dry-run=client -o yaml
+
+# Dry-run validation for service
+kubectl apply -f service.yaml --dry-run=client -o yaml
+
+# Validate YAML syntax
+kubectl apply -f deployment.yaml --validate=true --dry-run=client
+kubectl apply -f service.yaml --validate=true --dry-run=client
+
+# Check what would be created without actually creating
+kubectl create -f deployment.yaml --dry-run=client
+kubectl create -f service.yaml --dry-run=client
+```
+
 #### Verify Deployment
 ```bash
 # Check pods status
@@ -141,6 +158,10 @@ K8SAppSWD/
 # Build and tag Docker image
 docker build -t k8sappswd:v1 .
 
+# Validate configurations before deployment
+kubectl apply -f deployment.yaml --dry-run=client --validate=true
+kubectl apply -f service.yaml --dry-run=client --validate=true
+
 # Deploy complete application stack
 kubectl apply -f deployment.yaml
 kubectl apply -f service.yaml
@@ -154,9 +175,36 @@ kubectl set image deployment/k8sappswd-deployment k8sappswddeployment=k8sappswd:
 # Get service URL (minikube)
 minikube service k8sappswd-service --url
 
+# Validate running resources
+kubectl get all -l app=k8sappswddeployment
+
+# Test connectivity
+kubectl port-forward deployment/k8sappswd-deployment 8080:5000
+
 # Delete complete deployment
 kubectl delete -f service.yaml
 kubectl delete -f deployment.yaml
+```
+
+## 🔍 Troubleshooting
+
+### Validation Commands
+```bash
+# Check YAML syntax
+kubectl apply -f deployment.yaml --dry-run=client -o yaml
+kubectl apply -f service.yaml --dry-run=client -o yaml
+
+# Validate against cluster
+kubectl apply -f deployment.yaml --server-dry-run
+kubectl apply -f service.yaml --server-dry-run
+
+# Describe resources for debugging
+kubectl describe deployment k8sappswd-deployment
+kubectl describe service k8sappswd-service
+kubectl describe pods -l app=k8sappswddeployment
+
+# Check events
+kubectl get events --sort-by=.metadata.creationTimestamp
 ```
 
 ## 🤝 Contributing
