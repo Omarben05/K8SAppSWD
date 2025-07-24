@@ -1,13 +1,28 @@
+# Kubernetes Pod Configuration
+# A Pod is the smallest deployable unit in Kubernetes
+# It represents a single instance of a running process and can contain one or more containers
+# Pods are ephemeral - if they die, they are not restarted automatically (unlike Deployments)
+
+# API version for Pod resources (v1 is the core version)
 apiVersion: v1
+# Resource type: Pod is a single instance of your application
 kind: Pod
 metadata:
+  # Unique name for this specific pod instance
   name: demo-k9sappswd-pod
 spec:
+  # List of containers that will run in this pod
   containers:
+  # Container definition
   - name: demo-container-k8sappswd
+    # Docker image to run (custom image built from your Flask app)
     image: k8sappswd:v1
+    # Pull policy: IfNotPresent means use local image if available, otherwise pull from registry
+    # Alternatives: Always (always pull), Never (never pull, use local only)
     imagePullPolicy: IfNotPresent
     ports:
+    # Port that the container exposes internally
     - containerPort: 5000
+      # Protocol used (TCP is default, UDP is also available)
       protocol: TCP
-        
+
