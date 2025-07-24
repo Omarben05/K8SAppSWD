@@ -113,13 +113,26 @@ minikube service k8sappswd-service
 | Method | Endpoint | Description | Response |
 |--------|----------|-------------|----------|
 | GET    | `/`      | Returns a JSON greeting message | `{"message": "Ciao da k8s!"}` |
+| GET    | `/hostname` | Returns hostname and custom message | `{"hostname": "pod-name", "message": "hello from k8s"}` |
 
-### Response Example
+### Response Examples
+
+#### Root Endpoint (`/`)
 ```json
 {
   "message": "Ciao da k8s!"
 }
 ```
+
+#### Hostname Endpoint (`/hostname`)
+```json
+{
+  "hostname": "demo-k9sappswd-pod",
+  "message": "hello from k8s"
+}
+```
+
+*Note: The hostname will show the actual pod name when running in Kubernetes, making it useful for identifying which pod is responding in a multi-replica deployment.*
 
 ## 🏗️ Project Structure
 
@@ -142,6 +155,9 @@ K8SAppSWD/
 - **Base Image**: `python:3.11-slim`
 - **Port**: 5000
 - **Working Directory**: `/app`
+
+### Environment Variables
+- **MESSAGE**: Custom message for the `/hostname` endpoint (default: "hello from k8s")
 
 ### Kubernetes Resources
 - **Pod**: Single instance deployment
@@ -166,11 +182,11 @@ kubectl apply -f service.yaml --dry-run=client --validate=true
 kubectl apply -f deployment.yaml
 kubectl apply -f service.yaml
 
-# Scale deployment
+# Scale deployment (useful to test hostname endpoint with multiple pods)
 kubectl scale deployment k8sappswd-deployment --replicas=3
 
-# Update deployment
-kubectl set image deployment/k8sappswd-deployment k8sappswddeployment=k8sappswd:v2
+# Update deployment with custom environment variable
+kubectl set env deployment/k8sappswd-deployment MESSAGE="Custom message from K8s"
 
 # Get service URL (minikube)
 minikube service k8sappswd-service --url
@@ -180,6 +196,9 @@ kubectl get all -l app=k8sappswddeployment
 
 # Test connectivity
 kubectl port-forward deployment/k8sappswd-deployment 8080:5000
+
+# Test hostname endpoint (shows which pod responds)
+curl <service-url>/hostname
 
 # Delete complete deployment
 kubectl delete -f service.yaml
@@ -205,6 +224,19 @@ kubectl describe pods -l app=k8sappswddeployment
 
 # Check events
 kubectl get events --sort-by=.metadata.creationTimestamp
+```
+
+### Testing Multiple Replicas
+```bash
+# Scale to multiple replicas
+kubectl scale deployment k8sappswd-deployment --replicas=3
+
+# Test which pod responds (hostname will vary)
+kubectl port-forward deployment/k8sappswd-deployment 8080:5000
+curl http://localhost:8080/hostname
+
+# Watch pods to see different hostnames
+kubectl get pods -l app=k8sappswddeployment -w
 ```
 
 ## 🤝 Contributing
